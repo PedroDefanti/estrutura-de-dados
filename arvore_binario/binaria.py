@@ -54,8 +54,6 @@ def busca_binaria_fatiamento_recursiva(lista, n, indice_base=0):
 resultado_existente = busca_binaria_fatiamento_recursiva(lista_n, 70)
 print(f"Buscando 70: {resultado_existente}")
 
-# resultado_nao_existente = busca_binaria_fatiamento_recursiva(lista_n, 56)
-# print(f"Buscando 56: {resultado_nao_existente}")
 
 
 
