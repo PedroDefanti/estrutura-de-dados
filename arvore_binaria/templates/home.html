@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Árvore Binária de Busca - Django</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        .control-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            height: fit-content;
+        }
+
+        .visualization-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 600px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 101, 101, 0.3);
+        }
+
+        .btn-info {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(66, 153, 225, 0.3);
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #dd6b20;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(237, 137, 54, 0.3);
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .message.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #48bb78;
+        }
+
+        .message.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid #f56565;
+        }
+
+        .message.info {
+            background: #bee3f8;
+            color: #2c5282;
+            border-left: 4px solid #4299e1;
+        }
+
+        .tree-info {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .tree-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .tree-info strong {
+            color: #2d3748;
+        }
+
+        #tree-svg {
+            width: 100%;
+            height: 600px;
+        }
+
+        .node circle {
+            fill: #667eea;
+            stroke: #4c51bf;
+            stroke-width: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .node circle:hover {
+            fill: #5a67d8;
+            r: 35;
+        }
+
+        .node text {
+            font-size: 16px;
+            font-weight: bold;
+            fill: white;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+
+        .link {
+            fill: none;
+            stroke: #a0aec0;
+            stroke-width: 2px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message {
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌳 Árvore Binária de Busca (BST)</h1>
+            <p class="subtitle">Sistema Interativo com Django e D3.js</p>
+        </div>
+
+        <div class="main-content">
+            <div class="control-panel">
+                <div id="message" class="message"></div>
+
+                <div class="section">
+                    <div class="section-title">🎬 Inicializar Árvore</div>
+                    <input type="text" id="init-values" placeholder="Ex: 50 30 70 20 40 60 80">
+                    <button class="btn-primary" onclick="initializeTree()">Criar Árvore</button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">➕ Inserir Valor</div>
+                    <input type="text" id="insert-value" placeholder="Digite um número">
+                    <button class="btn-success" onclick="insertValue()">Inserir</button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🗑️ Deletar Valor</div>
+                    <input type="text" id="delete-value" placeholder="Digite um número">
+                    <button class="btn-danger" onclick="deleteValue()">Deletar (Auto-balance)</button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🔍 Buscar Valor</div>
+                    <input type="text" id="search-value" placeholder="Digite um número">
+                    <button class="btn-info" onclick="searchValue()">Buscar</button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">⚖️ Rebalancear</div>
+                    <button class="btn-warning" onclick="balanceTree()">Rebalancear Manualmente</button>
+                </div>
+
+                <div class="tree-info">
+                    <p><strong>Elementos em ordem:</strong></p>
+                    <p id="in-order-list">-</p>
+                </div>
+            </div>
+
+            <div class="visualization-panel">
+                <h2 style="margin-bottom: 20px; color: #2d3748;">Visualização da Árvore</h2>
+                <svg id="tree-svg"></svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Função auxiliar para pegar o token CSRF do Django
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 4000);
+        }
+
+        function updateInOrderList(values) {
+            const list = document.getElementById('in-order-list');
+            list.textContent = values && values.length > 0 ? values.join(', ') : '-';
+        }
+
+        async function initializeTree() {
+            const input = document.getElementById('init-values').value.trim();
+            // Pega os valores do input ou usa o padrão se estiver vazio
+            const valores = input ? input.split(/\s+/).map(Number).filter(n => !isNaN(n)) : [50, 30, 70, 20, 40, 60, 80];
+            
+            try {
+                const response = await fetch('/initialize/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') // <--- ADICIONADO O TOKEN AQUI
+                    },
+                    body: JSON.stringify({valores})
+                });
+                
+                // Verifica se a resposta foi OK antes de tentar converter para JSON
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    updateInOrderList(data.in_order);
+                    drawTree(data.tree);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Erro ao inicializar: ' + error, 'error');
+                console.error('Erro detalhado:', error);
+            }
+        }
+
+        async function insertValue() {
+            const valor = parseInt(document.getElementById('insert-value').value);
+            if (isNaN(valor)) {
+                showMessage('Digite um valor numérico válido', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/insert/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') // <--- ADICIONADO O TOKEN AQUI
+                    },
+                    body: JSON.stringify({valor})
+                });
+                
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+
+                const data = await response.json();
+                showMessage(data.message, data.success ? 'success' : 'error');
+                
+                if (data.success) {
+                    updateInOrderList(data.in_order);
+                    drawTree(data.tree);
+                    document.getElementById('insert-value').value = '';
+                }
+            } catch (error) {
+                showMessage('Erro ao inserir: ' + error, 'error');
+                console.error('Erro:', error);
+            }
+        }
+
+        async function deleteValue() {
+            const valor = parseInt(document.getElementById('delete-value').value);
+            if (isNaN(valor)) {
+                showMessage('Digite um valor numérico válido', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/delete/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') // <--- ADICIONADO O TOKEN AQUI
+                    },
+                    body: JSON.stringify({valor})
+                });
+                
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+
+                const data = await response.json();
+                showMessage(data.message, data.success ? 'success' : 'error');
+                
+                if (data.success) {
+                    updateInOrderList(data.in_order);
+                    drawTree(data.tree);
+                    document.getElementById('delete-value').value = '';
+                }
+            } catch (error) {
+                showMessage('Erro ao deletar: ' + error, 'error');
+                console.error('Erro:', error);
+            }
+        }
+
+        async function searchValue() {
+            const valor = parseInt(document.getElementById('search-value').value);
+            if (isNaN(valor)) {
+                showMessage('Digite um valor numérico válido', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/search/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') // <--- ADICIONADO O TOKEN AQUI
+                    },
+                    body: JSON.stringify({valor})
+                });
+                
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+
+                const data = await response.json();
+                showMessage(data.message, data.found ? 'success' : 'info');
+            } catch (error) {
+                showMessage('Erro ao buscar: ' + error, 'error');
+                console.error('Erro:', error);
+            }
+        }
+
+        async function balanceTree() {
+            try {
+                const response = await fetch('/balance/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') // <--- ADICIONADO O TOKEN AQUI
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+
+                const data = await response.json();
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    updateInOrderList(data.in_order);
+                    drawTree(data.tree);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Erro ao rebalancear: ' + error, 'error');
+                console.error('Erro:', error);
+            }
+        }
+
+        function drawTree(treeData) {
+            const svg = d3.select('#tree-svg');
+            svg.selectAll('*').remove();
+            
+            if (!treeData) {
+                svg.append('text')
+                    .attr('x', '50%')
+                    .attr('y', '50%')
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', '#a0aec0')
+                    .attr('font-size', '18px')
+                    .text('Árvore vazia - Inicialize com valores');
+                return;
+            }
+            
+            const container = document.getElementById('tree-svg');
+            const width = container.clientWidth;
+            const height = 600;
+            
+            const g = svg.append('g')
+                .attr('transform', 'translate(0, 40)');
+            
+            const treeLayout = d3.tree().size([width - 100, height - 100]);
+            
+            const root = d3.hierarchy(treeData, d => {
+                const children = [];
+                if (d.esquerda) children.push(d.esquerda);
+                if (d.direita) children.push(d.direita);
+                return children.length > 0 ? children : null;
+            });
+            
+            treeLayout(root);
+            
+            // Links
+            g.selectAll('.link')
+                .data(root.links())
+                .enter()
+                .append('path')
+                .attr('class', 'link')
+                .attr('d', d3.linkVertical()
+                    .x(d => d.x + 50)
+                    .y(d => d.y));
+            
+            // Nodes
+            const node = g.selectAll('.node')
+                .data(root.descendants())
+                .enter()
+                .append('g')
+                .attr('class', 'node')
+                .attr('transform', d => `translate(${d.x + 50},${d.y})`);
+            
+            node.append('circle')
+                .attr('r', 30);
+            
+            node.append('text')
+                .attr('dy', '0.35em')
+                .text(d => d.data.valor);
+        }
+
+        // Carregar árvore ao iniciar (GET não precisa de token CSRF)
+        window.onload = async () => {
+            try {
+                const response = await fetch('/get-tree/');
+                const data = await response.json();
+                if (data.tree) {
+                    updateInOrderList(data.in_order);
+                    drawTree(data.tree);
+                }
+            } catch (error) {
+                console.log('Nenhuma árvore existente');
+            }
+        };
+    </script>
+</body>
+</html>
