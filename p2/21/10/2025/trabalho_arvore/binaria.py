@@ -140,7 +140,50 @@ class BinaryTree:
             if no_atual.direita:
                 fila.append(no_atual.direita)
         print()
-
+        
+        
+        
+    def get_height(self):
+        return self.get_height_recursive(self.raiz)
+    
+    def get_height_recursive(self,no_atual):
+        if no_atual is None:
+            return -1
+        
+        altura_esquerda=self.get_height_recursive(no_atual.esquerda)
+        
+        altura_direita=self.get_height_recursive(no_atual.direita)
+        
+        return 1+ max(altura_esquerda,altura_direita)
+    
+    def get_size(self):
+        
+        return self.get_size_recursive(self.raiz)
+    
+    def get_size_recursive(self,no_atual):
+        
+        if no_atual is None:
+            return 0
+        
+        return(1+self.get_size_recursive(no_atual.esquerda)+
+               self.get_size_recursive(no_atual.direita))
+        
+    def get_max_value(self):
+        if self.raiz is None:
+            return float('-inf')
+        return self.get_max_value_recursive(self.raiz) 
+    
+    def get_max_value_recursive(self,no_atual):
+        if no_atual is None:
+            return float('-inf')
+        
+        max_atual=no_atual.valor
+        max_esquerda=self.get_max_value_recursive(no_atual.esquerda)
+        
+        max_direita=self.get_max_value_recursive(no_atual.direita)
+        
+        return max(max_atual,max_esquerda,max_direita)
+    
 # Construir a árvore manualmente
 arvore = BinaryTree(1)
 arvore.raiz.esquerda = Node(2)
@@ -160,5 +203,90 @@ arvore.post_order()
 arvore.post_order_iterative()
 # (Nível por Nível)
 arvore.level_order()
+    
+print(f"Altura da árvore: {arvore.get_height()}") 
+
+print(f'Tamanho da árvore (Nós):{arvore.get_size()}')
+
+print(f"Valor máximo na árvore: {arvore.get_max_value()}")
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                 
