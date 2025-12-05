@@ -2,15 +2,14 @@
 from django.db import models
 import json
 import math
+
 class Node:
-    """Representa um nó na Árvore Binária de Busca."""
     def __init__(self, valor):
         self.valor = valor
         self.esquerda = None
         self.direita = None
 
 class BinarySearchTree:
-    """Representa a Árvore Binária de Busca e suas operações."""
     def __init__(self):
         self.raiz = None
     
@@ -205,7 +204,6 @@ class BinarySearchTree:
 # ----------------------------------------------------
 
 class BSTSession(models.Model):
-    """Armazena a sessão da árvore BST (persistência)."""
     session_key = models.CharField(max_length=100, unique=True)
     tree_data = models.TextField(default='null')
     created_at = models.DateTimeField(auto_now_add=True)
